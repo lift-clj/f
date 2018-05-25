@@ -1,7 +1,8 @@
 (ns lift.f.functor
   (:refer-clojure :exclude [map])
-  (:import [clojure.lang IFn PersistentArrayMap PersistentHashMap
-            PersistentHashSet PersistentVector PersistentList]))
+  (:import [clojure.lang Fn IFn ISeq IPersistentCollection IPersistentMap
+            IPersistentVector IPersistentList])
+  (:require [clojure.core :as c]))
 
 (alias 'c 'clojure.core)
 
@@ -9,35 +10,31 @@
   (-map [x f]))
 
 (extend-protocol Functor
-  PersistentHashMap
-  (-map [^PersistentHashMap x ^IFn f]
+  IPersistentMap
+  (-map [^IPersistentMap x ^IFn f]
     (.kvreduce x
-               (fn [^PersistentHashMap i k v]
+               (fn [^IPersistentMap i k v]
                  (.assoc i k (.invoke f v)))
                x))
 
-  PersistentArrayMap
-  (-map [^PersistentArrayMap x ^IFn f]
-    (.kvreduce x
-               (fn [^PersistentArrayMap i k v]
-                 (.assoc i k (.invoke f v)))
-               x))
-
-  PersistentHashSet
-  (-map [x f]
-    (into #{} (c/map f x)))
-
-  PersistentList
+  IPersistentList
   (-map [x f]
     (c/map f x))
 
-  PersistentVector
+  IPersistentVector
   (-map [x f]
     (mapv f x))
 
-  IFn
+  IPersistentCollection
   (-map [x f]
-    (comp f x)))
+    (into x (c/map f x)))
+
+  Fn
+  (-map [x f]
+    (comp f x))
+
+  Object
+  (-map [x f] x))
 
 (defn map [f x]
   (-map x f))

@@ -1,5 +1,5 @@
 (def +project+ 'lift/f)
-(def +version+ "0.1.0")
+(def +version+ "0.1.1")
 (def +description+ "Efficient Functors for Clojure")
 
 (def dependencies
